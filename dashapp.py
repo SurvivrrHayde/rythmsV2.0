@@ -33,8 +33,8 @@ def update_chart(selected_user):
 
     if selected_user in data:
         user_data = data[selected_user]
-        y_positions = list(range(len(user_data) * 10, 0, -10))  # Assign each sensor a y-position
-        sensor_names = list(user_data.keys())
+        sensor_names = [key for key in user_data.keys() if key not in ['official_start_date', 'official_end_date']]
+        y_positions = list(range(len(sensor_names) * 10, 0, -10))  # Adjusted to use sensor_names
 
         fig.update_xaxes(
             title='Date',
@@ -59,6 +59,21 @@ def update_chart(selected_user):
         fig.add_trace(go.Scatter(x=[None], y=[None], mode='markers',
                                  marker=dict(color='orange', size=8),
                                  name='Void Data Day'))
+        
+        # Check and add official start and end dates as vertical lines
+        if 'official_start_date' in user_data and 'official_end_date' in user_data:
+            official_start_date = user_data['official_start_date']
+            official_end_date = user_data['official_end_date']
+
+            # Add vertical line for official start date
+            fig.add_shape(type="line",
+                          x0=official_start_date, y0=-1, x1=official_start_date, y1=10,
+                          line=dict(color="black", width=2))
+
+            # Add vertical line for official end date
+            fig.add_shape(type="line",
+                          x0=official_end_date, y0=-1, x1=official_end_date, y1=10,
+                          line=dict(color="black", width=2))
 
         for y, sensor in zip(y_positions, sensor_names):
             sensor_data = user_data[sensor]
